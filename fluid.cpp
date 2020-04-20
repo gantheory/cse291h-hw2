@@ -212,6 +212,8 @@ void Fluid::CreateSphereSurface() {
   }
 }
 
-glm::vec3 GetPosition(int i) { return positions[i]; }
+glm::vec3 Fluid::GetPosition(int i) { return positions[i]; }
 
-int GetPositionSize() { return positions.size(); }
+int Fluid::GetPositionSize() { return positions.size(); }
+
+void Fluid::SetPosition(int i, glm::vec3 p) { positions[i] = p; }

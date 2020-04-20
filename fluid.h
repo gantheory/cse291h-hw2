@@ -48,6 +48,8 @@ class Fluid : public Mesh {
   glm::vec3 GetPosition(int i);
 
   int GetPositionSize();
+
+  void SetPosition(int i, glm::vec3 p);
 };
 
 #endif
