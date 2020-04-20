@@ -7,6 +7,7 @@ const char* Window::windowTitle = "CSE 291H HW1";
 
 // Objects to render
 Box* Window::box;
+Fluid* Window::fluid;
 
 // Camera Properties
 Camera* Cam;
@@ -35,6 +36,7 @@ bool Window::initializeProgram() {
 bool Window::initializeObjects() {
   // Create a box
   box = new Box(glm::vec3(-0.5f, 0, -0.5f), glm::vec3(0.5f, 3, 0.5f));
+  fluid = new Fluid(*box, 100);
 
   return true;
 }
@@ -42,6 +44,7 @@ bool Window::initializeObjects() {
 void Window::cleanUp() {
   // Deallcoate the objects.
   delete box;
+  delete fluid;
 
   // Delete the shader program.
   glDeleteProgram(shaderProgram);
@@ -129,6 +132,8 @@ void Window::idleCallback() {
   Cam->Update();
 
   box->Update();
+
+  fluid->Update();
 }
 
 void Window::displayCallback(GLFWwindow* window) {
@@ -137,6 +142,7 @@ void Window::displayCallback(GLFWwindow* window) {
 
   // Render the object.
   box->Draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
+  fluid->Draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
 
   // Gets events, including input such as keyboard and mouse or window resizing.
   glfwPollEvents();

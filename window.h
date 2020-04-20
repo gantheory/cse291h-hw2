@@ -3,6 +3,7 @@
 
 #include "box.h"
 #include "camera.h"
+#include "fluid.h"
 #include "main.h"
 #include "shader.h"
 
@@ -15,6 +16,7 @@ class Window {
 
   // Objects to render
   static Box* box;
+  static Fluid* fluid;
 
   // Shader Program
   static GLuint shaderProgram;

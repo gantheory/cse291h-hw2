@@ -9,7 +9,7 @@
 
 #define PI 3.1415926f
 
-Box::Box(glm::vec3 boxMin, glm::vec3 boxMax) {
+Box::Box(glm::vec3 boxMin, glm::vec3 boxMax) : boxMin(boxMin), boxMax(boxMax) {
   std::vector<glm::vec3> points = {boxMin, boxMax};
   positions = {// [0, 0, 0] <-> [0, 0, 1]
                glm::vec3(points[0].x, points[0].y, points[0].z),
@@ -105,3 +105,7 @@ void Box::Draw(const glm::mat4& viewProjMtx, GLuint shader) {
 }
 
 void Box::Update() {}
+
+glm::vec3 Box::GetBoxMin() { return boxMin; }
+
+glm::vec3 Box::GetBoxMax() { return boxMax; }

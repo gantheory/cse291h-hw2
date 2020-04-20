@@ -15,6 +15,8 @@ class Box : public Mesh {
   std::vector<glm::vec3> positions;
   std::vector<unsigned int> indices;
 
+  glm::vec3 boxMin, boxMax;
+
  public:
   Box(glm::vec3 boxMin, glm::vec3 boxMax);
 
@@ -23,6 +25,10 @@ class Box : public Mesh {
   void Draw(const glm::mat4& viewProjMtx, GLuint shader);
 
   void Update();
+
+  glm::vec3 GetBoxMin();
+
+  glm::vec3 GetBoxMax();
 };
 
 #endif
