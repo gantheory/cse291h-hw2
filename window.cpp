@@ -37,7 +37,7 @@ bool Window::initializeProgram() {
 bool Window::initializeObjects() {
   // Create a box
   box = new Box(glm::vec3(-0.5f, 0, -0.5f), glm::vec3(0.5f, 3, 0.5f));
-  fluid = new Fluid(*box, 100);
+  fluid = new Fluid(*box, 300);
   fluidDynamics = new FluidDynamics(fluid, box);
 
   return true;

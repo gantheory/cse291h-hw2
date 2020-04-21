@@ -9,16 +9,10 @@
 
 #define PI 3.1415926f
 #define DEBUG_ITER 500
-#define LAMBDA 0.006
 
 FluidDynamics::FluidDynamics(Fluid* fluid, Box* box) : fluid(fluid), box(box) {
   int numOfParticles = fluid->GetNumOfParticles();
 
-  // h = pow(4.f * fluid->GetRadius() / (3.f * (float)numOfParticles), 1.f
-  // / 3.f);
-  h = 0.15;
-
-  // mass.resize(numOfParticles, PI * pow(h, 3) * kDensity);
   mass.resize(numOfParticles, pow(h, 3) * kDensity);
 
   velocities.resize(numOfParticles, glm::vec3(0.f));
@@ -57,7 +51,8 @@ void FluidDynamics::Update() {
     maxVelocity = fmax(maxVelocity, velocities[i].y);
     maxVelocity = fmax(maxVelocity, velocities[i].z);
   }
-  deltaT = fmin(kMaxDeltaT, LAMBDA * h / maxVelocity);
+  deltaT = fmin(kMaxDeltaT, kLambda * h / maxVelocity);
+  deltaT = 5e-5;
 
   if (iteration % DEBUG_ITER == 1) {
     std::cerr << "Current time step (deltaT): " << deltaT << std::endl;
@@ -65,14 +60,35 @@ void FluidDynamics::Update() {
 
   // Find neighbors.
   int total = 0;
-  std::vector<std::vector<int>> neighbors(numOfParticles);
-  for (int i = 0; i < numOfParticles; ++i) {
-    glm::vec3 currentPoint = fluid->GetPosition(i);
-    for (int j = 0; j < numOfParticles; ++j) {
-      glm::vec3 anotherPoint = fluid->GetPosition(j);
-      if (glm::distance(currentPoint, anotherPoint) < 2.f * h) {
-        ++total;
-        neighbors[i].push_back(j);
+  // std::vector<std::vector<int>> neighbors(numOfParticles);
+  // for (int i = 0; i < numOfParticles; ++i) {
+  //   glm::vec3 currentPoint = fluid->GetPosition(i);
+  //   for (int j = 0; j < numOfParticles; ++j) {
+  //     glm::vec3 anotherPoint = fluid->GetPosition(j);
+  //     if (glm::distance(currentPoint, anotherPoint) < 2.f * h) {
+  //       ++total;
+  //       neighbors[i].push_back(j);
+  //     }
+  //   }
+  // }
+  if (iteration % kUpdateIter == 1) {
+    neighbors.clear();
+    neighbors.resize(numOfParticles);
+
+    UpdateSpatialHashTable();
+    for (int i = 0; i < numOfParticles; ++i) {
+      glm::vec3 point = fluid->GetPosition(i);
+      std::vector<int> potentialNeighborsHashValue =
+          GetNeighborsHashValue(point);
+      for (int j = 0; j < (int)potentialNeighborsHashValue.size(); ++j) {
+        int nowHashValue = potentialNeighborsHashValue[j];
+        for (auto& k : spatialHash[nowHashValue]) {
+          glm::vec3 anotherPoint = fluid->GetPosition(k);
+          if (glm::distance(point, anotherPoint) < 2.f * h) {
+            ++total;
+            neighbors[i].push_back(k);
+          }
+        }
       }
     }
   }
@@ -253,4 +269,34 @@ glm::vec3 FluidDynamics::ComputeNablaW(int i, int j) {
     return glm::vec3(0.f);
   }
   assert(false);
+}
+
+std::vector<int> FluidDynamics::GetNeighborsHashValue(glm::vec3& point) {
+  int x = floor(point.x / h);
+  int y = floor(point.y / h);
+  int z = floor(point.z / h);
+  std::vector<int> neighborCells;
+  for (int i = -1; i <= 1; ++i)
+    for (int j = -1; j <= 1; ++j)
+      for (int k = -1; k <= 1; ++k) {
+        neighborCells.push_back(((x + i) * p1) ^ ((y + j) * p2) ^
+                                ((z + k) * p3));
+      }
+  return neighborCells;
+}
+
+int FluidDynamics::hashValue(glm::vec3& point) {
+  return ((int)floor(point.x / h) * p1) ^ ((int)floor(point.y / h) * p2) ^
+         ((int)floor(point.z / h) * p3);
+}
+
+void FluidDynamics::UpdateSpatialHashTable() {
+  spatialHash.clear();
+
+  int numOfParticles = fluid->GetNumOfParticles();
+  for (int i = 0; i < numOfParticles; ++i) {
+    glm::vec3 point = fluid->GetPosition(i);
+    int value = hashValue(point);
+    spatialHash[value].push_back(i);
+  }
 }
