@@ -81,15 +81,25 @@ void FluidDynamics::Update() {
               << (float)total / (float)numOfParticles << std::endl;
   }
 
+  // Compute nabla W.
+  std::vector<std::vector<glm::vec3>> nablaW(numOfParticles);
+  for (int i = 0; i < numOfParticles; ++i) {
+    nablaW[i].resize(neighbors[i].size());
+    for (int j = 0; j < (int)nablaW[i].size(); ++j)
+      nablaW[i][j] = ComputeNablaW(i, neighbors[i][j]);
+  }
+
   // viscosity
   for (int i = 0; i < numOfParticles; ++i) {
     glm::vec3 xi = fluid->GetPosition(i);
     glm::vec3 sum(0.f);
-    for (int j : neighbors[i]) {
+    for (int ii = 0; ii < (int)neighbors[i].size(); ++ii) {
+      int j = neighbors[i][ii];
       glm::vec3 xj = fluid->GetPosition(j);
       glm::vec3 xij = xi - xj;
       sum += mass[j] / densities[j] * (velocities[i] - velocities[j]) *
-             dot(xij, nablaW(i, j)) / (float)(dot(xij, xij) + 0.01 * pow(h, 2));
+             dot(xij, nablaW[i][ii]) /
+             (float)(dot(xij, xij) + 0.01 * pow(h, 2));
     }
     viscosityForce[i] += mass[i] * kKinematicViscosity * 2 * sum;
 
@@ -117,10 +127,11 @@ void FluidDynamics::Update() {
   float averageDensity = 0.0;
   for (int i = 0; i < numOfParticles; ++i) {
     densities[i] = 0;
-    for (int j : neighbors[i]) {
+    for (int ii = 0; ii < (int)neighbors[i].size(); ++ii) {
+      int j = neighbors[i][ii];
       densities[i] +=
           mass[j] * W(i, j) +
-          deltaT * mass[j] * dot(velocities[i] - velocities[j], nablaW(i, j));
+          deltaT * mass[j] * dot(velocities[i] - velocities[j], nablaW[i][ii]);
     }
 
     averageDensity += densities[i];
@@ -139,11 +150,12 @@ void FluidDynamics::Update() {
   }
   for (int i = 0; i < numOfParticles; ++i) {
     glm::vec3 nablaP(0.f);
-    for (int j : neighbors[i]) {
+    for (int ii = 0; ii < (int)neighbors[i].size(); ++ii) {
+      int j = neighbors[i][ii];
       nablaP += mass[j] *
                 (float)(pressure[i] / pow(densities[i], 2) +
                         pressure[j] / pow(densities[j], 2)) *
-                nablaW(i, j);
+                nablaW[i][ii];
     }
     pressureForce[i] += -mass[i] * nablaP;
 
@@ -221,7 +233,7 @@ float FluidDynamics::W(int i, int j) {
   return fq / pow(h, 3);
 }
 
-glm::vec3 FluidDynamics::nablaW(int i, int j) {
+glm::vec3 FluidDynamics::ComputeNablaW(int i, int j) {
   glm::vec3 xi = fluid->GetPosition(i);
   glm::vec3 xj = fluid->GetPosition(j);
 

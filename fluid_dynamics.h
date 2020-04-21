@@ -28,7 +28,7 @@ class FluidDynamics {
 
   float W(int i, int j);
 
-  glm::vec3 nablaW(int i, int j);
+  glm::vec3 ComputeNablaW(int i, int j);
 
  public:
   FluidDynamics(Fluid* fluid, Box* box);
