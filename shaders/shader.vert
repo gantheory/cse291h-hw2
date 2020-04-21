@@ -15,9 +15,9 @@ out vec3 fragNormal;
 
 void main()
 {
-    // OpenGL maintains the D matrix so you only need to multiply by P, V (aka C inverse), and M
-    gl_Position = viewProj * model * vec4(position, 1.0);
+  // OpenGL maintains the D matrix so you only need to multiply by P, V (aka C inverse), and M
+  gl_Position = viewProj * model * vec4(position, 1.0);
 
-    // for shading
-	fragNormal = vec3(model * vec4(normal, 0));
+  // for shading
+  fragNormal = vec3(model * vec4(normal, 0));
 }

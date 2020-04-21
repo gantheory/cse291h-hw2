@@ -164,6 +164,7 @@ void FluidDynamics::Update() {
       std::cerr << "nan pressure found: " << pressure[i] << std::endl;
     }
   }
+  glm::vec3 averagePressureForce(0.f);
   for (int i = 0; i < numOfParticles; ++i) {
     glm::vec3 nablaP(0.f);
     for (int ii = 0; ii < (int)neighbors[i].size(); ++ii) {
@@ -174,6 +175,7 @@ void FluidDynamics::Update() {
                 nablaW[i][ii];
     }
     pressureForce[i] += -mass[i] * nablaP;
+    averagePressureForce += pressureForce[i];
 
     auto& p = pressureForce[i];
     if (isnan(p.x) || isnan(p.y) || isnan(p.z)) {
@@ -182,6 +184,10 @@ void FluidDynamics::Update() {
       std::cerr << "densities: " << densities[i] << std::endl;
       assert(false);
     }
+  }
+  if (iteration % DEBUG_ITER == 1) {
+    std::cerr << "Average pressure force: " << to_string(averagePressureForce)
+              << std::endl;
   }
 
   // Collision to the ground and walls
