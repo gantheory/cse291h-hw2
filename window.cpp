@@ -6,6 +6,7 @@ int Window::height;
 const char* Window::windowTitle = "CSE 291H HW1";
 
 // Objects to render
+FluidDynamics* Window::fluidDynamics;
 Box* Window::box;
 Fluid* Window::fluid;
 
@@ -37,6 +38,7 @@ bool Window::initializeObjects() {
   // Create a box
   box = new Box(glm::vec3(-0.5f, 0, -0.5f), glm::vec3(0.5f, 3, 0.5f));
   fluid = new Fluid(*box, 100);
+  fluidDynamics = new FluidDynamics(fluid, box);
 
   return true;
 }
@@ -45,6 +47,7 @@ void Window::cleanUp() {
   // Deallcoate the objects.
   delete box;
   delete fluid;
+  delete fluidDynamics;
 
   // Delete the shader program.
   glDeleteProgram(shaderProgram);
@@ -130,6 +133,8 @@ void Window::resizeCallback(GLFWwindow* window, int width, int height) {
 void Window::idleCallback() {
   // Perform any updates as necessary.
   Cam->Update();
+
+  fluidDynamics->Update();
 
   box->Update();
 

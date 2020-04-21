@@ -109,3 +109,5 @@ void Box::Update() {}
 glm::vec3 Box::GetBoxMin() { return boxMin; }
 
 glm::vec3 Box::GetBoxMax() { return boxMax; }
+
+int Box::GetNumOfParticles() { return 8; }

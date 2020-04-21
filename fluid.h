@@ -19,6 +19,7 @@ class Fluid : public Mesh {
   GLuint VAO;
   GLuint VBO_positions, VBO_normals, EBO;
 
+  float radius;
   std::vector<glm::vec3> positions;
 
   // Methods for rendering small spheres.
@@ -47,9 +48,11 @@ class Fluid : public Mesh {
 
   glm::vec3 GetPosition(int i);
 
-  int GetPositionSize();
+  int GetNumOfParticles();
 
   void SetPosition(int i, glm::vec3 p);
+
+  float GetRadius();
 };
 
 #endif

@@ -10,6 +10,8 @@ class Mesh {
   virtual void Draw(const glm::mat4& viewProjMtx, GLuint shader) = 0;
 
   virtual void Update() = 0;
+
+  virtual int GetNumOfParticles() = 0;
 };
 
 #endif

@@ -4,6 +4,7 @@
 #include "box.h"
 #include "camera.h"
 #include "fluid.h"
+#include "fluid_dynamics.h"
 #include "main.h"
 #include "shader.h"
 
@@ -15,6 +16,7 @@ class Window {
   static const char* windowTitle;
 
   // Objects to render
+  static FluidDynamics* fluidDynamics;
   static Box* box;
   static Fluid* fluid;
 

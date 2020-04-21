@@ -13,8 +13,8 @@ Fluid::Fluid(Box& box, int numOfParticles) {
   // Sample points
   glm::vec3 boxMin = box.GetBoxMin();
   glm::vec3 boxMax = box.GetBoxMax();
-  float radius =
-      fmin((boxMax.x - boxMin.x) / 2 * 0.8, (boxMax.z - boxMin.z) / 2 * 0.8);
+  radius =
+      fmin((boxMax.x - boxMin.x) / 2 * 0.95, (boxMax.z - boxMin.z) / 2 * 0.95);
   glm::vec3 initialCenter((boxMin.x + boxMax.x) / 2, boxMax.y - radius,
                           (boxMin.z + boxMax.z) / 2);
   std::cerr << "Initial radius: " << radius << std::endl;
@@ -114,9 +114,6 @@ void Fluid::Draw(const glm::mat4& viewProjMtx, GLuint shader) {
 }
 
 void Fluid::Update() {
-  return;
-  // TODO
-
   // Bind to the VAO.
   glBindVertexArray(VAO);
 
@@ -214,6 +211,8 @@ void Fluid::CreateSphereSurface() {
 
 glm::vec3 Fluid::GetPosition(int i) { return positions[i]; }
 
-int Fluid::GetPositionSize() { return positions.size(); }
+int Fluid::GetNumOfParticles() { return positions.size(); }
 
 void Fluid::SetPosition(int i, glm::vec3 p) { positions[i] = p; }
+
+float Fluid::GetRadius() { return radius; }

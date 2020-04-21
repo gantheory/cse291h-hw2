@@ -26,6 +26,8 @@ class Box : public Mesh {
 
   void Update();
 
+  int GetNumOfParticles();
+
   glm::vec3 GetBoxMin();
 
   glm::vec3 GetBoxMax();
