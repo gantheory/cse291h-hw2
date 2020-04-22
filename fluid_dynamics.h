@@ -9,13 +9,13 @@
 
 class FluidDynamics {
  private:
-  const float kDensity = 1.0;           // g / cm^3
-  const float kGravity = 980.665f;      // cm / s^2
-  const float kMaxDeltaT = 1e-4;        // s
-  const float kKinematicViscosity = 1;  // cm^2 / s, 1
-  const float kStiffness = 5;           // ???, 5
+  const float kDensity = 1.0;              // g / cm^3
+  const float kGravity = 980.665f;         // cm / s^2
+  const float kMaxDeltaT = 1e-4;           // s
+  const float kKinematicViscosity = 0.50;  // cm^2 / s, 1
+  const float kStiffness = 5e-1;           // ???, 5
   const float kSpringWall = 1e5;
-  const float h = 0.10;  // cm^3
+  const float h = 0.065;  // cm^3
 
   const float kLambda = 0.006;
   const int p1 = 73856093;

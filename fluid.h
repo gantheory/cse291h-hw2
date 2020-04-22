@@ -10,14 +10,14 @@ class Fluid : public Mesh {
  private:
   // Constants for rendring small spheres.
   const float kRenderRadius = 0.04;
-  const int stackCount = 6;
-  const int sectorCount = 6;
+  const int stackCount = 5;
+  const int sectorCount = 5;
 
   const glm::mat4 kModel = glm::mat4(1.0f);
   const glm::vec3 kColor = glm::vec3(1.0f);
 
   GLuint VAO;
-  GLuint VBO_positions, VBO_normals, EBO;
+  GLuint VBO_positions, VBO_normals, VBO_instance, EBO;
 
   float radius;
   std::vector<glm::vec3> positions;

@@ -42,42 +42,38 @@ Fluid::Fluid(Box& box, int numOfParticles) {
   glGenVertexArrays(1, &VAO);
   glGenBuffers(1, &VBO_positions);
   glGenBuffers(1, &VBO_normals);
+  glGenBuffers(1, &VBO_instance);
 
   // Bind to the VAO.
   glBindVertexArray(VAO);
 
-  for (int i = 0; i < (int)positions.size(); ++i) {
-    for (int j = 0; j < (int)surfaceVertices.size(); ++j) {
-      allSurfaceVertices[i * surfaceVertices.size() + j] += positions[i];
-    }
-  }
-
   // Bind to the first VBO - We will use it to store the vertices
   glBindBuffer(GL_ARRAY_BUFFER, VBO_positions);
-  glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * allSurfaceVertices.size(),
-               allSurfaceVertices.data(), GL_STATIC_DRAW);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * surfaceVertices.size(),
+               surfaceVertices.data(), GL_STATIC_DRAW);
   glEnableVertexAttribArray(0);
   glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), 0);
 
-  for (int i = 0; i < (int)positions.size(); ++i) {
-    for (int j = 0; j < (int)surfaceVertices.size(); ++j) {
-      allSurfaceVertices[i * surfaceVertices.size() + j] -= positions[i];
-    }
-  }
-
   // Bind to the second VBO - We will use it to store the normals
   glBindBuffer(GL_ARRAY_BUFFER, VBO_normals);
-  glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * allSurfaceNormals.size(),
-               allSurfaceNormals.data(), GL_STATIC_DRAW);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * surfaceNormals.size(),
+               surfaceNormals.data(), GL_STATIC_DRAW);
   glEnableVertexAttribArray(1);
   glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), 0);
+
+  glBindBuffer(GL_ARRAY_BUFFER, VBO_instance);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * positions.size(),
+               positions.data(), GL_STATIC_DRAW);
+  glEnableVertexAttribArray(2);
+  glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), 0);
+  glVertexAttribDivisor(2, 1);
 
   // Generate EBO, bind the EBO to the bound VAO and send the data
   glGenBuffers(1, &EBO);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
   glBufferData(GL_ELEMENT_ARRAY_BUFFER,
-               sizeof(unsigned int) * allSurfaceIndices.size(),
-               allSurfaceIndices.data(), GL_STATIC_DRAW);
+               sizeof(unsigned int) * surfaceIndices.size(),
+               surfaceIndices.data(), GL_STATIC_DRAW);
 
   // Unbind the VBOs.
   glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -87,6 +83,8 @@ Fluid::Fluid(Box& box, int numOfParticles) {
 Fluid::~Fluid() {
   // Delete the VBOs and the VAO.
   glDeleteBuffers(1, &VBO_positions);
+  glDeleteBuffers(1, &VBO_normals);
+  glDeleteBuffers(1, &VBO_instance);
   glDeleteBuffers(1, &EBO);
   glDeleteVertexArrays(1, &VAO);
 }
@@ -106,7 +104,8 @@ void Fluid::Draw(const glm::mat4& viewProjMtx, GLuint shader) {
   glBindVertexArray(VAO);
 
   // draw the points using triangles, indexed with the EBO
-  glDrawElements(GL_TRIANGLES, allSurfaceIndices.size(), GL_UNSIGNED_INT, 0);
+  glDrawElementsInstanced(GL_TRIANGLES, surfaceIndices.size(), GL_UNSIGNED_INT,
+                          0, positions.size());
 
   // Unbind the VAO and shader program
   glBindVertexArray(0);
@@ -117,22 +116,12 @@ void Fluid::Update() {
   // Bind to the VAO.
   glBindVertexArray(VAO);
 
-  for (int i = 0; i < (int)positions.size(); ++i) {
-    for (int j = 0; j < (int)surfaceVertices.size(); ++j) {
-      allSurfaceVertices[i * surfaceVertices.size() + j] += positions[i];
-    }
-  }
-
-  // Bind to the first VBO - We will use it to store the vertices
-  glBindBuffer(GL_ARRAY_BUFFER, VBO_positions);
-  glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * allSurfaceVertices.size(),
-               allSurfaceVertices.data(), GL_STATIC_DRAW);
-
-  for (int i = 0; i < (int)positions.size(); ++i) {
-    for (int j = 0; j < (int)surfaceVertices.size(); ++j) {
-      allSurfaceVertices[i * surfaceVertices.size() + j] -= positions[i];
-    }
-  }
+  glBindBuffer(GL_ARRAY_BUFFER, VBO_instance);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * positions.size(),
+               positions.data(), GL_STATIC_DRAW);
+  glEnableVertexAttribArray(2);
+  glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), 0);
+  glVertexAttribDivisor(2, 1);
 }
 
 glm::vec3 Fluid::uniformSampleInsideSphere(

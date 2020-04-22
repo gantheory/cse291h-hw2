@@ -52,7 +52,7 @@ void FluidDynamics::Update() {
     maxVelocity = fmax(maxVelocity, velocities[i].z);
   }
   deltaT = fmin(kMaxDeltaT, kLambda * h / maxVelocity);
-  deltaT = 5e-5;
+  deltaT = 1e-4;
 
   if (iteration % DEBUG_ITER == 1) {
     std::cerr << "Current time step (deltaT): " << deltaT << std::endl;
