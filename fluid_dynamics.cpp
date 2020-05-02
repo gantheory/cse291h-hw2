@@ -83,6 +83,7 @@ void FluidDynamics::Update() {
       for (int j = 0; j < (int)potentialNeighborsHashValue.size(); ++j) {
         int nowHashValue = potentialNeighborsHashValue[j];
         for (auto& k : spatialHash[nowHashValue]) {
+          if (i == k) continue;
           glm::vec3 anotherPoint = fluid->GetPosition(k);
           if (glm::distance(point, anotherPoint) < 2.f * h) {
             ++total;
@@ -159,6 +160,7 @@ void FluidDynamics::Update() {
 
   // Pressure
   for (int i = 0; i < numOfParticles; ++i) {
+    if (neighbors[i].empty()) continue;
     pressure[i] = kStiffness * (pow(densities[i] / kDensity, 7) - 1.f);
     if (isnan(pressure[i])) {
       std::cerr << "nan pressure found: " << pressure[i] << std::endl;
@@ -278,9 +280,9 @@ glm::vec3 FluidDynamics::ComputeNablaW(int i, int j) {
 }
 
 std::vector<int> FluidDynamics::GetNeighborsHashValue(glm::vec3& point) {
-  int x = floor(point.x / h);
-  int y = floor(point.y / h);
-  int z = floor(point.z / h);
+  int x = floor(point.x / 2.f * h);
+  int y = floor(point.y / 2.f * h);
+  int z = floor(point.z / 2.f * h);
   std::vector<int> neighborCells;
   for (int i = -1; i <= 1; ++i)
     for (int j = -1; j <= 1; ++j)
@@ -292,8 +294,9 @@ std::vector<int> FluidDynamics::GetNeighborsHashValue(glm::vec3& point) {
 }
 
 int FluidDynamics::hashValue(glm::vec3& point) {
-  return ((int)floor(point.x / h) * p1) ^ ((int)floor(point.y / h) * p2) ^
-         ((int)floor(point.z / h) * p3);
+  return ((int)floor(point.x / 2.f * h) * p1) ^
+         ((int)floor(point.y / 2.f * h) * p2) ^
+         ((int)floor(point.z / 2.f * h) * p3);
 }
 
 void FluidDynamics::UpdateSpatialHashTable() {
